@@ -1,0 +1,20 @@
+# Downloaded wallpaper images (large binary files)
+bing_wallpapers/
+
+# Scraper state (machine-specific, regenerable)
+scrape_state.json
+metadata_state.json
+
+# Combined output image
+combined_wallpaper.png
+
+# Sync log
+sync.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude Code internal directory
+.claude/
