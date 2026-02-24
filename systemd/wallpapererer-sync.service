@@ -1,0 +1,9 @@
+[Unit]
+Description=Bing wallpaper daily sync
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/pf183229/code/wallpapererer
+ExecStart=/home/pf183229/code/wallpapererer/sync_latest.sh
+StandardOutput=append:/home/pf183229/code/wallpapererer/sync.log
+StandardError=append:/home/pf183229/code/wallpapererer/sync.log
