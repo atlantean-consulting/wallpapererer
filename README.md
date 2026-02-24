@@ -1,16 +1,22 @@
 # Wallpapererer
 
-A collection of Python and shell scripts for fetching, organizing, and applying Bing archive wallpapers on Linux Mint Cinnamon desktop. Supports single-monitor and multi-monitor setups, automated daily sync via systemd, and EXIF metadata embedding.
+Microslop's Bing Search is only useful for pornography, but Bing Wallpaper is a real treat. Too bad it's a Bill Gates product!
+
+"But Paul, using the inscrutable power of AI, we can build *our OWN Bing Wallpaper*, with *blackjack* and ~*hookers*~ *sex workers*!"
+
+And that's exactly what I've done! **Wallpapererer** is a collection of Python and shell scripts for fetching, organizing, and applying Bing archive wallpapers on the Linux Mint Cinnamon desktop. It supports single-monitor and multi-monitor setups, automated daily sync via systemd, and EXIF metadata embedding, so you can pretend to respect copyright.
 
 ## Monitor Configuration
 
-The multi-monitor compositor is configured for:
+The multi-monitor compositor `wallpaper_combiner.py` is configured for my home desktop, which is a triple-wide setup (spared no expense), laid out like so:
 
 - Left screen: 1920×1080
 - Center screen: 3440×1440 (ultrawide)
 - Right screen: 1920×1080
 
 Screens are aligned at the top edge.
+
+The geometry can be easily adjusted by mucking about in the file. You're a smart cookie; I'm sure you'll figure it out.
 
 ## Installation
 
@@ -74,6 +80,8 @@ python sort_by_resolution.py
 python sort_by_resolution.py --dry-run   # preview only
 ```
 
+The full set, as of late February 2026 *e.v.* weighs about 16.5 GB. Email me if you want the `.torrent`.
+
 ### `set_wallpaper.py` — Apply a single wallpaper (single-monitor)
 
 Picks an image from `bing_wallpapers/high/` and applies it via `gsettings`. Prints the EXIF caption and photographer credit after applying.
@@ -134,7 +142,7 @@ Orchestrates the full daily update pipeline:
 
 ### `sync_latest_multi.sh` — Daily sync (multi-monitor)
 
-Identical to `sync_latest.sh` but calls `set_combined_wallpaper.py` at the end instead of `set_wallpaper.py`. Use this on the three-monitor home desktop.
+Identical to `sync_latest.sh` but calls `set_combined_wallpaper.py` at the end instead of `set_wallpaper.py`. Use this on a multi-monitor setup.
 
 ```bash
 ./sync_latest_multi.sh
@@ -143,7 +151,7 @@ Identical to `sync_latest.sh` but calls `set_combined_wallpaper.py` at the end i
 
 ## Automation
 
-A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time.
+A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time. These files are in the `systemd` directory here, but you'll want to move them to `~/.config/systemd/user/`. 
 
 **Unit files:**
 - `~/.config/systemd/user/wallpapererer-sync.service`
@@ -162,3 +170,7 @@ journalctl --user -u wallpapererer-sync.service
 ```
 
 Logs also append to `sync.log` in the project directory.
+
+Enjoy that sweet, sweet visual eye candy!
+
+-- Paul
