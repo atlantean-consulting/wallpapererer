@@ -1,9 +1,10 @@
 # Downloaded wallpaper images (large binary files)
 bing_wallpapers/
 
-# Scraper state (machine-specific, regenerable)
+# State files (machine-specific, regenerable)
 scrape_state.json
 metadata_state.json
+image_dates.csv
 
 # Combined output image
 combined_wallpaper.png
