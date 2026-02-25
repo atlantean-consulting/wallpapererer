@@ -89,6 +89,9 @@ def main():
                         help=f"Wallpaper directory (default: {DEFAULT_WALLPAPER_DIR})")
     parser.add_argument("--catalog", default=str(CATALOG_FILE),
                         help=f"Date catalog CSV (default: {CATALOG_FILE})")
+    parser.add_argument("--all", action="store_true",
+                        help="Force all months in range back into scraper scope, "
+                             "regardless of catalog or current on-disk state")
     args = parser.parse_args()
 
     months_in_scope = set(generate_months(args.start, args.end))
@@ -132,12 +135,17 @@ def main():
     #   - months with missing images → remove (scraper must re-visit)
     #   - months fully present AND not the current month → add
     #   - current month → never add (new image arrives tomorrow)
-    for yyyymm in months_with_missing:
-        done_months.discard(yyyymm)
+    #   - --all: evict every month in scope (force full re-scrape pass)
+    if args.all:
+        for yyyymm in months_in_scope:
+            done_months.discard(yyyymm)
+    else:
+        for yyyymm in months_with_missing:
+            done_months.discard(yyyymm)
 
-    for yyyymm in months_with_catalog - months_with_missing:
-        if yyyymm != this_month:
-            done_months.add(yyyymm)
+        for yyyymm in months_with_catalog - months_with_missing:
+            if yyyymm != this_month:
+                done_months.add(yyyymm)
 
     # Current month must never be in done_months — a new image will arrive tomorrow
     done_months.discard(this_month)
@@ -148,7 +156,12 @@ def main():
     STATE_FILE.write_text(json.dumps(state, indent=2))
 
     # Report
-    if missing:
+    if args.all:
+        n = len(months_in_scope)
+        print(f"[prepare_sync] --all: evicted {n} month(s) from done_months — state reset")
+        print(f"[prepare_sync] Next: run scrape_bing.py --start {args.start} --end {args.end}")
+        return 0
+    elif missing:
         by_month: dict[str, list[str]] = {}
         for yyyymm, image_id in sorted(missing):
             by_month.setdefault(yyyymm, []).append(image_id)

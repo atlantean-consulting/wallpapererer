@@ -105,9 +105,19 @@ python prepare_sync.py
 #   --end   YYYYMM      last month to check  (default: current month)
 #   --wallpaper-dir DIR directory to search  (default: ./bing_wallpapers)
 #   --catalog FILE      CSV to read          (default: ./image_dates.csv)
+#   --all               reset state for the entire range; see below
 ```
 
 This is called automatically by the sync scripts; you rarely need to invoke it directly.
+
+**Bulk / initial download:** if you want to (re-)download a large range of months, use `--all` to evict that range from `scrape_state.json` without consulting the catalog, then run the scraper manually:
+
+```bash
+python prepare_sync.py --start 200905 --end 202412 --all
+python scrape_bing.py  --start 200905 --end 202412
+```
+
+`--all` exits 0 (success) and prints the exact scraper command to run next. Already-downloaded images remain in `done_images`, so the scraper skips them and only fetches what's genuinely missing.
 
 
 ### `set_wallpaper.py` — Apply a single wallpaper (single-monitor)
