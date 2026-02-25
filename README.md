@@ -6,18 +6,6 @@ Microslop's Bing Search is only useful for pornography, but Bing Wallpaper is a 
 
 And that's exactly what I've done! **Wallpapererer** is a collection of Python and shell scripts for fetching, organizing, and applying Bing archive wallpapers on the Linux Mint Cinnamon desktop. It supports single-monitor and multi-monitor setups, automated daily sync via systemd, and EXIF metadata embedding, so you can pretend to respect copyright.
 
-## Monitor Configuration
-
-The multi-monitor compositor `wallpaper_combiner.py` is configured for my home desktop, which is a triple-wide setup (spared no expense), laid out like so:
-
-- Left screen: 1920×1080
-- Center screen: 3440×1440 (ultrawide)
-- Right screen: 1920×1080
-
-Screens are aligned at the top edge.
-
-The geometry can be easily adjusted by mucking about in the file. You're a smart cookie; I'm sure you'll figure it out.
-
 ## Installation
 
 ```bash
@@ -108,7 +96,17 @@ python set_combined_wallpaper.py --dry-run      # show selection only, no compos
 
 ### `wallpaper_combiner.py` — Low-level multi-monitor compositor
 
-Stitches images into a single wide canvas. Used internally by `set_combined_wallpaper.py` but can also be called directly.
+The multi-monitor compositor `wallpaper_combiner.py` is configured for my home desktop, which is a triple-wide setup (spared no expense), laid out like so:
+
+- Left screen: 1920×1080
+- Center screen: 3440×1440 (ultrawide)
+- Right screen: 1920×1080
+
+Screens are aligned at the top edge.
+
+The geometry can be easily adjusted by mucking about in the file. You're a smart cookie; I'm sure you'll figure it out.
+
+The script itself stitches images into a single wide canvas. Used internally by `set_combined_wallpaper.py` but can also be called directly.
 
 ```bash
 # Two images: one for center, one for both sides
@@ -120,7 +118,7 @@ Stitches images into a single wide canvas. Used internally by `set_combined_wall
 
 ### `fix_wallpaper_resolution.sh` — Fix post-suspend resolution degradation
 
-Fixes a Cinnamon bug where the wallpaper renders at degraded resolution after resuming from suspend. Toggles `picture-options` from `zoom` → `spanned` with a brief pause to force a full redraw.
+Fixes an annoying Cinnamon bug where the wallpaper renders at degraded resolution after resuming from suspend. Toggles `picture-options` from `zoom` → `spanned` with a brief pause to force a full redraw. Once I figure out how to fix this permanently, I'll let y'all know, thus rendering this script redundant.
 
 ```bash
 ./fix_wallpaper_resolution.sh
@@ -151,7 +149,7 @@ Identical to `sync_latest.sh` but calls `set_combined_wallpaper.py` at the end i
 
 ## Automation
 
-A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time. These files are in the `systemd` directory here, but you'll want to move them to `~/.config/systemd/user/`. 
+A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time. These files are in the `systemd` directory here, but you'll want to move them to `~/.config/systemd/user/`. If you're into your multi-monitor era, you'll want to edit `wallpapererer-sync.service` to make sure it uses `sync_latest_multi.sh`.
 
 **Unit files:**
 - `~/.config/systemd/user/wallpapererer-sync.service`
