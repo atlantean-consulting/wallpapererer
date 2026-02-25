@@ -1,10 +1,10 @@
 # Wallpapererer
 
-Microslop's Bing Search is only useful for pornography, but Bing Wallpaper is a real treat. Too bad it's a Bill Gates product!
+Micro$lop's Bing Search is only useful for pornography, but Bing Wallpaper is a real treat. Too bad it's a Bill Gates product!
 
 "But Paul, using the inscrutable power of AI, we can build *our OWN Bing Wallpaper*, with *blackjack* and ~*hookers*~ *sex workers*!"
 
-And that's exactly what I've done! **Wallpapererer** is a collection of Python and shell scripts for fetching, organizing, and applying Bing archive wallpapers on the Linux Mint Cinnamon desktop. It supports single-monitor and multi-monitor setups, automated daily sync via systemd, and EXIF metadata embedding, so you can pretend to respect copyright.
+And that's exactly what I've done! **Wallpapererer** is a collection of Python and shell scripts that emulate the behavior of the Bing Wallpaper™ App (A Micro$lop Joint), by fetching, organizing, and applying them for the Linux Mint Cinnamon desktop. It supports single-monitor and multi-monitor setups, automated daily sync via systemd, and EXIF metadata embedding, so you can pretend to respect copyright.
 
 ## Installation
 
