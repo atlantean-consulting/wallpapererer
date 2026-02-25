@@ -94,6 +94,25 @@ python set_combined_wallpaper.py --month 202602
 python set_combined_wallpaper.py --dry-run      # show selection only, no compositing
 ```
 
+### `set_today.py` — Apply today's actual Bing image (single-monitor)
+
+Looks up today's date in `image_dates.csv` and applies that specific image — the one Bing actually featured today. Used by `sync_latest.sh` as the default wallpaper step.
+
+```bash
+python set_today.py
+python set_today.py --dry-run
+```
+
+### `set_today_combined.py` — Apply today's actual Bing image (multi-monitor)
+
+Same idea as `set_today.py` but for the triple-monitor setup: today's image goes on the center ultrawide, and a date-seeded pick from the archive fills the side monitors. Used by `sync_latest_multi.sh` as the default wallpaper step.
+
+```bash
+python set_today_combined.py
+python set_today_combined.py --random    # random image for the sides
+python set_today_combined.py --dry-run
+```
+
 ### `wallpaper_combiner.py` — Low-level multi-monitor compositor
 
 The multi-monitor compositor `wallpaper_combiner.py` is configured for my home desktop, which is a triple-wide setup (spared no expense), laid out like so:
@@ -116,6 +135,45 @@ The script itself stitches images into a single wide canvas. Used internally by 
 ./wallpaper_combiner.py -o output.png --left left.jpg --center center.jpg --right right.jpg
 ```
 
+### `build_date_catalog.py` — Map image IDs to calendar dates
+
+Fetches each month's archive page and writes a `date ↔ image_id` mapping to `image_dates.csv`. The archive lists images in reverse-chronological order (most recent day first), so positions are converted to dates using `day = total_images − position + 1`.
+
+```bash
+# Refresh the catalog for the current and previous month (default)
+python build_date_catalog.py
+
+# Catalog a specific range
+python build_date_catalog.py --start 202501 --end 202602
+
+# Key flags
+#   --start YYYYMM   first month (default: previous month)
+#   --end   YYYYMM   last month  (default: current month)
+#   --output FILE    CSV path (default: ./image_dates.csv)
+#   --force          re-fetch months already in the CSV
+```
+
+Past months are skipped on re-runs (already complete); the current month is always re-fetched since a new image is added each day. Output columns: `date`, `yyyymm`, `image_id`, `filename`.
+
+### `prepare_sync.py` — Surgical scrape-state management
+
+Reads `image_dates.csv`, checks which image files are actually present on disk, and updates `scrape_state.json` accordingly — marking present images as done and un-marking only the genuinely missing ones. Exits 0 if everything is already present (no scraping needed), or 1 if any images are missing.
+
+The current calendar month is never written into `done_months`, so the scraper always re-checks it tomorrow for the next day's image. Past months where all images are present are marked done so the scraper skips them entirely.
+
+```bash
+# Check the default window (previous + current month)
+python prepare_sync.py
+
+# Key flags
+#   --start YYYYMM      first month to check (default: previous month)
+#   --end   YYYYMM      last month to check  (default: current month)
+#   --wallpaper-dir DIR directory to search  (default: ./bing_wallpapers)
+#   --catalog FILE      CSV to read          (default: ./image_dates.csv)
+```
+
+Called automatically by the sync scripts; you rarely need to invoke this directly.
+
 ### `fix_wallpaper_resolution.sh` — Fix post-suspend resolution degradation
 
 Fixes an annoying Cinnamon bug where the wallpaper renders at degraded resolution after resuming from suspend. Toggles `picture-options` from `zoom` → `spanned` with a brief pause to force a full redraw. Once I figure out how to fix this permanently, I'll let y'all know, thus rendering this script redundant.
@@ -128,38 +186,41 @@ Fixes an annoying Cinnamon bug where the wallpaper renders at degraded resolutio
 
 Orchestrates the full daily update pipeline:
 
-1. Download the current and previous month's images (re-checks current month if today's image is missing)
-2. Embed EXIF metadata into any new files
-3. Move new files into `bing_wallpapers/high/`
-4. Apply today's wallpaper via `set_wallpaper.py`
+1. Refresh `image_dates.csv` for the current and previous month (`build_date_catalog.py`)
+2. Check which catalog images are missing from disk (`prepare_sync.py`); if none, skip straight to step 4
+3. Download only the missing images (`scrape_bing.py`)
+4. Embed EXIF metadata into any new files (`scrape_metadata.py`)
+5. Move new files into `bing_wallpapers/high/`
+6. Apply today's wallpaper via `set_today.py`
 
 ```bash
 ./sync_latest.sh
 ./sync_latest.sh --no-apply   # sync only, skip wallpaper step
+./sync_latest.sh --random     # apply a date-seeded pick from the archive instead of today's image
 ```
 
 ### `sync_latest_multi.sh` — Daily sync (multi-monitor)
 
-Identical to `sync_latest.sh` but calls `set_combined_wallpaper.py` at the end instead of `set_wallpaper.py`. Use this on a multi-monitor setup.
+Same pipeline as `sync_latest.sh` but calls `set_today_combined.py` at the end instead of `set_today.py`. Use this on a multi-monitor setup.
 
 ```bash
 ./sync_latest_multi.sh
 ./sync_latest_multi.sh --no-apply
+./sync_latest_multi.sh --random
 ```
 
 ## Automation
 
-A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time. These files are in the `systemd` directory here, but you'll want to move them to `~/.config/systemd/user/`. If you're into your multi-monitor era, you'll want to edit `wallpapererer-sync.service` to make sure it uses `sync_latest_multi.sh`.
-
-**Unit files:**
-- `~/.config/systemd/user/wallpapererer-sync.service`
-- `~/.config/systemd/user/wallpapererer-sync.timer`
+A systemd user timer runs the daily sync automatically, with `Persistent=true` to catch up if the machine was off at the scheduled time.
 
 **One-time setup:**
 ```bash
-systemctl --user daemon-reload
-systemctl --user enable --now wallpapererer-sync.timer
+./install_systemd.sh
 ```
+
+This fills in the project directory in the service template, copies both unit files to `~/.config/systemd/user/`, reloads the daemon, and enables the timer. It prints the expanded service file before activating so you can confirm everything looks right.
+
+If you're on a multi-monitor setup, edit `systemd/wallpapererer-sync.service` to call `sync_latest_multi.sh` instead of `sync_latest.sh` before running the install script.
 
 **Check status:**
 ```bash
