@@ -159,7 +159,9 @@ def main():
     if args.all:
         n = len(months_in_scope)
         print(f"[prepare_sync] --all: evicted {n} month(s) from done_months — state reset")
-        print(f"[prepare_sync] Next: run scrape_bing.py --start {args.start} --end {args.end}")
+        print(f"[prepare_sync] Next steps:")
+        print(f"[prepare_sync]   1. python build_date_catalog.py --start {args.start} --end {args.end} --force")
+        print(f"[prepare_sync]   2. python scrape_bing.py --start {args.start} --end {args.end}")
         return 0
     elif missing:
         by_month: dict[str, list[str]] = {}

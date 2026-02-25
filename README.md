@@ -110,14 +110,15 @@ python prepare_sync.py
 
 This is called automatically by the sync scripts; you rarely need to invoke it directly.
 
-**Bulk / initial download:** if you want to (re-)download a large range of months, use `--all` to evict that range from `scrape_state.json` without consulting the catalog, then run the scraper manually:
+**Bulk / initial download:** if you want to (re-)download a large range of months, use `--all` to evict that range from `scrape_state.json`, then run the catalog builder and scraper manually:
 
 ```bash
-python prepare_sync.py --start 200905 --end 202602 --all
-python scrape_bing.py  --start 200905 --end 202602
+python prepare_sync.py      --start 200905 --end 202602 --all
+python build_date_catalog.py --start 200905 --end 202602 --force
+python scrape_bing.py        --start 200905 --end 202602
 ```
 
-`--all` exits 0 (success) and prints the exact scraper command to run next. Already-downloaded images remain in `done_images`, so the scraper skips them and only fetches what's genuinely missing.
+`--all` exits 0 (success) and prints these two commands as a reminder. `build_date_catalog.py` needs `--force` because it has its own skip logic — it won't re-fetch months already present in `image_dates.csv` otherwise. Already-downloaded images remain in `done_images`, so the scraper skips them and only fetches what's genuinely missing.
 
 
 ### `set_wallpaper.py` — Apply a single wallpaper (single-monitor)

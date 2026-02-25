@@ -21,6 +21,7 @@ Usage:
 """
 
 import argparse
+import calendar
 import csv
 import re
 import sys
@@ -105,10 +106,11 @@ def assign_dates(yyyymm: str, image_ids: list[str]) -> list[dict]:
     """
     year = int(yyyymm[:4])
     month = int(yyyymm[4:6])
+    days_in_month = calendar.monthrange(year, month)[1]
     n = len(image_ids)
     rows = []
     for position, image_id in enumerate(image_ids, 1):
-        day = n - position + 1
+        day = min(n - position + 1, days_in_month)
         d = date(year, month, day)
         rows.append({
             "date": d.isoformat(),
