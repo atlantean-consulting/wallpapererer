@@ -113,8 +113,8 @@ This is called automatically by the sync scripts; you rarely need to invoke it d
 **Bulk / initial download:** if you want to (re-)download a large range of months, use `--all` to evict that range from `scrape_state.json` without consulting the catalog, then run the scraper manually:
 
 ```bash
-python prepare_sync.py --start 200905 --end 202412 --all
-python scrape_bing.py  --start 200905 --end 202412
+python prepare_sync.py --start 200905 --end 202602 --all
+python scrape_bing.py  --start 200905 --end 202602
 ```
 
 `--all` exits 0 (success) and prints the exact scraper command to run next. Already-downloaded images remain in `done_images`, so the scraper skips them and only fetches what's genuinely missing.
