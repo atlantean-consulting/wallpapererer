@@ -50,6 +50,9 @@ You can also run the sync manually:
 
 Both accept `--no-apply` (sync only) and `--random` (random wallpaper instead of today's).
 
+I put the following line in my `.bashrc` so I can call it system-wide:
+`alias syncywyncy='/home/paul/path/to/app/sync_latest.sh'`
+
 ## Script Reference
 
 For detailed flags, usage examples, and internals, see **[MANUAL.md](MANUAL.md)**.
